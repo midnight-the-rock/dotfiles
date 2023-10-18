@@ -1,0 +1,7 @@
+alias g++="g++ -Werror -Wall -Wextra -pedantic -std=c++20"
+alias vim="nvim"
+alias cat="bat"
+alias ls="lsd"
+alias neofetch="clear && echo \"\" && neofetch"
+
+eval "$(starship init zsh)"
