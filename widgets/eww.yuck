@@ -1,0 +1,57 @@
+(defpoll uptime :interval "1m"
+	 "echo $(uptime -p | tr -d , | awk '{ print $1\" \"$2\" \"$3 }')")
+
+(defpoll battery :interval "5m"
+	 "echo $(cat /sys/class/power_supply/BAT1/capacity)")
+
+(defpoll volume :interval "100ms"
+	 "amixer get Master | grep Mono: | awk '{ print $4 }' | tr -d '[%]'")
+
+(defpoll brightness :interval "100ms"
+	 "brightnessctl | grep Current | awk '{ print $4 }' | tr -d '(%)'")
+
+(defpoll player_title :interval "2s"
+	 "./scripts/media-control.sh title")
+
+(defpoll player_artist :interval "2s"
+	 "./scripts/media-control.sh artist")
+
+(defpoll player_cover :interval "10s"
+	 "./scripts/media-control.sh cover")
+
+(defpoll clock_hour :interval "1m"
+	 "echo $(date +%R | cut -d ':' -f 1)")
+
+(defpoll clock_minute :interval "1m"
+	 "echo $(date +%R | cut -d ':' -f 2)")
+
+(defpoll current_month :interval "1h"
+	 "date | cut -d ' ' -f1-3 | tr ' ' '/'")
+
+(defpoll memory :interval "1h"
+	 "./scripts/memory-info.sh")
+
+(include "./status_bar/status_bar.yuck")
+
+(defwindow status_bar 
+    :monitor 0 
+    :stacking "bg" 
+    :wm-ignore true
+    :reserve (struts :distance "60px" :side "left")
+    :geometry (geometry
+	       :x 12 
+	       :y 0
+	       :height "97.6%"
+	       :anchor "center left")
+    (status_bar))
+
+(include "./dashboard/dashboard.yuck")
+
+(defwindow dashboard
+    :monitor 0 
+    :stacking "bg" 
+    :geometry (geometry 
+	       :x 0 
+	       :y 0 
+	       :anchor "center") 
+    (dashboard))

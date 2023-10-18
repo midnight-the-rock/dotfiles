@@ -1,0 +1,25 @@
+(defwidget status_bar[]
+    (box
+     :class "status_bar_out"
+     (centerbox
+      :class "status_bar_in"
+      :orientation "v"
+      (status_workspaces) (box) (status_clock))))
+
+(defpoll status_workspaces
+    :interval "80ms" 
+    "./scripts/workspace.sh")
+
+(defwidget status_workspaces[]
+    (box 
+     :class "lambda_box"
+     (literal :content status_workspaces)))
+
+(defwidget status_clock[]
+    (box
+     :valign "end"
+     :orientation "v"    
+     :space-evenly false :spacing 8
+     :class "lambda_time"
+     (box clock_hour) 
+     (box clock_minute)))

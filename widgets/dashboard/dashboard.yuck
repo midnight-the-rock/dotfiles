@@ -1,0 +1,162 @@
+(defwidget dashboard []
+    (box 
+     :class "dashboard_out" 
+     (box 
+      :class "dashboard_in"
+      :spacing 8
+      :space-evenly false 
+      :orientation "v"
+
+      (dashboard_header) (dashboard_upper_half) (dashboard_lower_half))))
+
+(defwidget dashboard_header []
+  (centerbox
+   :class "dashboard_header"
+   :orientation "h"
+   (dashboard_header_left) (box) (dashboard_header_right)))
+
+(defwidget dashboard_header_right []
+  (box 
+   :halign "end" 
+   :space-evenly false 
+   (dashboard_clock)))
+
+(defwidget dashboard_header_left []
+  (box 
+   :space-evenly false 
+   (user_icon) (user_uptime)))
+
+(defwidget user_icon[]
+    (box :class "user_icon"
+	 :style "background-image: url('./assets/user.png')"))
+
+(defwidget user_uptime[]
+    (box :class "user_uptime"
+	 "│ ${uptime}"))
+
+(defwidget dashboard_clock[]
+    (box 
+     :class "user_uptime"
+     "${clock_hour}:${clock_minute}"))
+
+(defwidget dashboard_upper_half []
+  (box :orientation "h"
+       :space-evenly false :spacing 8
+       (dashboard_date) (dashboard_agenda)))
+
+(defwidget dashboard_date []
+  (box :orientation "v"
+       :space-evenly false :spacing 0
+       :class "calendar_outer"
+       (box :halign "start" 
+	    :style  "padding: 4px 0px 8px 8px;"
+	    "󰃭  ${current_month}")
+       (calendar :class "calendar_inner"
+		 :show-heading false)))
+
+(defpoll agenda :interval "2m" "./scripts/agenda.sh")
+
+(defwidget dashboard_agenda []
+  (box  :class "agenda"
+	:orientation "v"
+	:valign "start"
+	:space-evenly false :spacing 8
+
+	(box :halign "start"
+	     :style "padding: 4px 0px 0px 8px;"
+	     "󱇘  Agenda")
+
+	(box (literal :content agenda))))
+
+(defwidget dashboard_lower_half []
+  (box :orientation "h" 
+       :space-evenly false :spacing 8
+       (music_player) (audio_visual_control) (session_control) (device_info)))
+
+(defwidget music_player []
+  (box :class "music_player"
+       :halign "start"
+       :orientation "h"
+       :space-evenly false :spacing 20
+       (player_cover) (player_info)))
+
+(defwidget player_cover[]
+    (box :class "player_cover"
+	 :style player_cover))
+
+(defwidget player_info []
+  (box :orientation "v"
+       :valign "start"
+       :space-evenly false :spacing 0 
+       (player_title) (player_artist) (player_buttons)))
+
+(defwidget player_title []
+  (box :orientation "v"
+       :style "margin: 10px 0px 0px 0px;"
+       (label :xalign 0.0
+	      :limit-width 18 
+	      :text player_title)))
+
+(defwidget player_artist []
+  (box :orientation "v"
+       :style "font-size: 14px;"
+       (label :xalign 0.0
+	      :limit-width 20 
+	      :text player_artist)))
+
+(defwidget player_buttons []
+  (box :class "player_buttons"
+       :orientation "h"
+       :space-evenly false :spacing 20
+       (button :onclick "./scripts/mediaControl.sh next"   "󰼥")
+       (button :onclick "./scripts/mediaControl.sh toggle" "󰐎")
+       (button :onclick "./scripts/mediaControl.sh next"   "󰼦")))
+
+(defwidget audio_visual_control []
+  (box :class "audio_visual_control"
+       :orientation "v"
+       :valign "center"
+       :space-evenly false :spacing 14
+	(box :space-evenly false
+	     (scale :flipped false
+		    :orientation "h"
+		    :class "audio_visual_bar"
+		    :min 0 
+		    :max 101
+		    :value brightness)
+	     (box :class "audio_visual_icon" ""))
+	(box :space-evenly false
+	     (scale :flipped false
+		    :orientation "h"
+		    :class "audio_visual_bar"
+		    :min 0 :max 101
+		    :value volume)
+	     (box :class "audio_visual_icon" "󱄠"))))
+
+(defwidget session_control []
+  (box :orientation "v"
+       :space-evenly false :spacing 8
+       (box :orientation "h"
+	    :space-evenly false :spacing 8
+	    (button :class "control_button" "󰤆")
+	    (button :class "control_button" "󰤄"))
+       (box :orientation "h"
+	    :space-evenly false :spacing 8
+	    (button :class "control_button" "󰑫")
+	    (button :class "control_button" "󰂯"))))
+
+(defwidget device_info []
+  (box :class "device_info"
+       :valign "start"
+       :orientation "v"
+       :space-evenly false :spacing 12
+       (circular-progress :value battery
+			  :start-at 75 
+			  :thickness 6
+			  :class "device_progress"
+			  (box :class "device_progress_icon_a" " "))
+       (circular-progress :value {(EWW_DISK["/"].free / EWW_DISK["/"].total) * 100}
+			  :start-at 75 
+			  :thickness 6
+			  :class "device_progress"
+			  (box :class "device_progress_icon_b" "󰌨 "))))

@@ -1,0 +1,161 @@
+.dashboard_out {
+    background: $_c0;
+}
+
+.dashboard_in {
+    margin: 5px;
+    padding: 20px;
+    background: $_c1;
+}
+
+.dashboard_header {
+    color: $_c2;
+    font-size: 18px;
+    padding: 0px 10px 10px 10px;
+    background: $_c1;
+}
+
+.user_icon {
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    padding: 20px;
+    border-radius: 50%;
+    min-width: 8px;
+    min-height: 8px;
+}
+
+.user_uptime {
+    margin: 4px;
+    padding: 0px 15px;
+    font-size: 18px;
+    color: $_c2;
+    background: $_c1;
+}
+
+.calendar_outer {
+    background: $_c0;
+    border-radius:10px;;
+    padding: 10px 10px 0px 10px;
+    font-size: 18px;
+}
+
+.calendar_inner {
+    background: $_c1;
+    border-radius:10px;;
+    padding: 8px 14px;
+    font-size: 16px;
+}
+
+calendar {
+    &:selected {
+	color: $_c2;
+	background: $_c1;
+	border-radius: 2px;
+    }
+}
+
+.agenda {
+    background: $_c0;
+    padding: 10px;
+    min-width: 500px;
+    font-size: 18px;
+    border-radius: 10px;
+}
+
+.agenda_scroll {
+    border-radius: 10px;
+    background: $_c1;
+    padding: 20px 20px;
+    min-height: 250px;
+}
+
+.agenda_todo {
+    color: #d1c9ab;
+    font-weight: bold;
+}
+
+.agenda_header {
+    color: #9aa8b3;
+    font-size: 22px;
+}
+
+.music_player {
+    background: $_c0;
+    padding: 12px 12px;
+    min-width: 396px;
+    border-radius: 10px;
+    font-size: 22px;
+}
+
+.player_cover {
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+
+    min-width: 130px;
+    min-height: 120px;
+
+    border-radius: 10%;
+}
+
+.player_buttons {
+    font-size: 20px;
+    margin: 30px 0px 0px 0px;
+}
+
+.audio_visual_control {
+    padding: 12px;
+    border-radius: 10px;
+    background: #262026;
+}
+
+scale.audio_visual_bar trough {
+    background: $_c1;
+    min-width: 256px;
+    min-height: 60px;
+    border-radius: 10px;;   
+}
+
+scale.audio_visual_bar trough highlight {
+    background: #c9c0bb; 
+    border-radius: 10px 2px 2px 10px;   
+}
+
+.audio_visual_icon {
+    color: #1d5b5f;
+    font-size: 20px;
+    margin: 0px 0px -1px -470px;
+}
+
+.control_button {
+    background: $_c0;
+    border-radius:10px;;
+    padding: 22px 30px 22px 28px;
+    font-size: 24px;
+}
+
+.device_info {
+     padding: 13px 10px 12px 10px;
+     background: #262026;
+     border-radius: 10px;
+ }
+
+ .device_progress {
+     color: #b5bab5;
+     background: #1e191e;
+ }
+
+ .device_progress_icon_a {
+     padding: 16px;
+     margin-right: 3px;
+     margin-left: 3px;
+     font-size: 22px;
+ }
+
+ .device_progress_icon_b {
+     padding: 16px;
+     margin-left: 6px;
+     font-size: 22px;
+ }
