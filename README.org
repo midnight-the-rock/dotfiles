@@ -152,7 +152,7 @@ These varaibles help with the colorscheme, but they are going to be changed soon
   (defwindow status_bar 
       :monitor 0 
       :stacking "bg" 
-      :wm-ignore true
+      :wm-ignore false
       :reserve (struts :distance "60px" :side "left")
       :geometry (geometry
 		 :x 12 
@@ -961,23 +961,23 @@ Lower half of the dashboard includes a music player, metrics for audio and brigh
   right_format = "$git_branch $git_metrics$directory"
 
   [status]
-  symbol          = " [ ](bg:#1e191e fg:#0c4f63)[ λ ](fg:#0c4f63 bg:#91a3b0)[ ](bg:#1e191e fg:#0c4f63)"
-  success_symbol  = " [ ](bg:#1e191e fg:#91a3b0)[ λ ](fg:#91a3b0 bg:#1e191e)[ ](bg:#1e191e fg:#91a3b0)"
+  symbol          = " [ ](bg:#1e191e fg:#0c4f63)[∆](fg:#b36c4b bg:#1e191e)[ ](bg:#1e191e fg:#0c4f63)"
+  success_symbol  = " [ ](bg:#1e191e fg:#91a3b0)[∆](fg:#4a5a64 bg:#1e191e)[ ](bg:#1e191e fg:#91a3b0)"
   disabled = false
   format = '$symbol'
 
   [directory]
   disabled = false
-  format = " [ ](fg:#2e191e bg:#91a3b0)[   ┃ $path ](bg:#91a3b0 fg:#1e191e)[ ](fg:#1e191e bg:#91a3b0) "
+  format = " [ ](fg:#2e191e bg:#848C94)[   ┃ $path ](bg:#848C94 fg:#1e191e)[ ](fg:#1e191e bg:#848C94) "
 
   [git_branch]
-  symbol = ''
-  format = '[$symbol $branch](fg:#6f7789 bg:#1e191e) '
+  symbol = ''
+  format = '[$symbol $branch](fg:#b1a7a8 bg:#1e191e) '
 
   [git_metrics]
   disabled = false
   only_nonzero_diffs = false
-  format = '[ ](fg:#1e191e bg:#91a3b0)[ +$added ](fg:#1e191e bg:#91a3b0)[┃](bg:#91a3b0 fg:#1e191e)[ -$deleted ](fg:#1e191e bg:#91a3b0)[ ](fg:#1e191e bg:#91a3b0)'
+  format = '[ ](fg:#1e191e bg:#8c7d7b)[ +$added ](fg:#1e191e bg:#8c7d7b)[┃](bg:#8c7d7b fg:#1e191e)[ -$deleted ](fg:#1e191e bg:#8c7d7b)[ ](fg:#1e191e bg:#8c7d7b)'
 
 #+end_src
 
@@ -1108,7 +1108,6 @@ Of course, a good terminal cannot live without a proper neofetch.
 
 #+end_src
 
-
 *** Terminal emulator
 
 #+begin_src conf :tangle ./terminal/kitty/kitty.conf
@@ -1116,12 +1115,12 @@ Of course, a good terminal cannot live without a proper neofetch.
   enable_audio_bell no 
 
   # fonts
-  font_family Iosevka Nerd Font
+  font_family BlexMono Nerd Font 
   font_size 18
 
   # background & foreground
   background #1e191e
-  foreground #dbd7d2
+  foreground #b1a7a8
 
   # tab bar 
   tab_bar_style powerline
