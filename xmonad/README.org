@@ -1,0 +1,156 @@
+
+#+title: Xmonad configs
+#+author: midnight-the-rock
+
+
+
+** Utility Imports
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  -- Reverie Xmonad Configs
+  -- Author: midnight-the-rock
+
+  import XMonad
+
+  import XMonad.Util.EZConfig(additionalKeysP)
+  import XMonad.Util.SpawnOnce 
+
+  import XMonad.Layout.Gaps
+  import XMonad.Layout.Spacing
+  import XMonad.Layout.ThreeColumns
+
+  import XMonad.Hooks.ManageDocks
+  import XMonad.Hooks.DynamicLog
+  import XMonad.Hooks.StatusBar
+  import XMonad.Hooks.StatusBar.PP
+  import XMonad.Hooks.EwmhDesktops
+
+#+end_src
+
+
+** User Keybinds
+
+User defined bindings are divided in three sections, this is done to set boundaries between different functionality.  
+
+The first bindings are related to screen control, whatever that has to do anything with your screen goes here, brightness, screenshots, and more.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  screenControl :: [(String, X())]
+  screenControl = [ ("M-s",   spawn "scrot -u")
+		  , ("M-S-s", spawn "scrot -s")
+		  , ("M-r",   spawn "redshift -P -O 3500")
+		  , ("M-S-r", spawn "redshift -x")
+		  , ("M-<XF86AudioRaiseVolume>",  spawn "brightnessctl set 5%+")
+		  , ("M-<XF86AudioLowerVolume>",  spawn "brightnessctl set 5%-")
+		  ]
+
+#+end_src
+
+And all related to audio will be located under audioControl, for now it is just volume and music controllers, but I may add some other stuff in the future.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  audioControl :: [(String, X())]
+  audioControl = [ ("<XF86AudioNext>", spawn "playerctl next")
+		 , ("<XF86AudioPrev>", spawn "playerctl previous")
+		 , ("<XF86AudioPlay>", spawn "playerctl play-pause")
+		 , ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 5+")
+		 , ("<XF86AudioLowerVolume>", spawn "amixer sset Master 5-")
+		 ]
+
+#+end_src
+
+As for the launchControl, there is no much to say, add, remove, thinker around it as you please.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  launchControl :: [(String, X())]
+  launchControl = [ ("M-<Return>", spawn "kitty")
+		  , ("M-S-<Return>", spawn "env XMODIFIERS= emacs")
+		  , ("M-p", spawn "rofi -show drun")
+		  , ("M-d", spawn "bash /home/midnight/.config/eww/scripts/dashboard.sh")
+		  ]
+
+#+end_src
+
+All of those keybinds are joined in a single array, in case you desire to add another binding section, you have to add it here to work.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  myKeybinds :: [(String, X())]
+  myKeybinds = screenControl ++ audioControl ++ launchControl
+
+#+end_src
+
+
+** Layout
+
+My layout is quite simple, just three different layout configurations: tall, threecolum, and full; minimal spacing and gaps is added so that it does not feel crowded.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  myLayout =
+    avoidStruts
+    . gaps windowGaps
+    . spacing windowSpacing
+    $ layoutTall ||| layoutThreeCol ||| Full
+    where
+      windowGaps     = [(U, 8), (D, 8), (R,10), (L, 10)]
+      layoutTall     = Tall 1 (3/100) (1/2)
+      layoutThreeCol = ThreeCol 1 (3/100) (1/2)
+      windowSpacing  = 5
+
+#+end_src
+
+
+** Startup 
+
+Things you may want during startup may be located here, or you can remove it and use an xprofile script for that purpose, they are basically the same solution.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  myStartup :: X()
+  myStartup = do
+    spawnOnce "setxkbmap -layout es,apl -option grp:win_switch -option ctrl:nocaps"
+    spawnOnce "eww open status_bar"
+
+#+end_src
+
+
+** Setup
+
+All the configuration is then completed in this setup, if you want to remove something from it and forget to remove its occurrences here, it will not work.
+
+After removing something, always remember to run src_shell{xmonad --recompile}; just to be sure.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  mySetup = def
+    { borderWidth        = 2
+    , normalBorderColor  = "#262026"
+    , focusedBorderColor = "#b1a7a8"
+    , manageHook         = manageHook def <+> manageDocks
+    , layoutHook         = myLayout
+    , startupHook        = myStartup
+    } `additionalKeysP` myKeybinds
+
+  main :: IO()
+  main = xmonad $ ewmh $ ewmhFullscreen $ mySetup
+
+#+end_src
+
+
+** Installation
+
+For now this only require xmonad and xmonad-contrib to work, you can use this script if you are on arch.
+
+#+begin_src shell :tangle ../install/xmonad.sh
+
+  ln -sf $(pwd)/ ~/.config/xmonad
+
+  sudo pacman -S xmonad xmonad-contrib
+  xmonad --recompile 
+
+#+end_src
