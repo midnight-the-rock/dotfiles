@@ -1,19 +1,29 @@
-(defwidget status_bar[]
-    (box
-     :class "status_bar_out"
-     (centerbox
-      :class "status_bar_in"
-      :orientation "v"
-      (status_workspaces) (box) (status_clock))))
+(defpoll current-window :interval "100ms" "xdotool getwindowfocus getwindowclassname")
 
-(defpoll status_workspaces
+(defwidget status-bar []
+	   (centerbox :class "bar-inner"
+		      :orientation "h"
+		      :space-evenly false
+		      (box :halign "start"
+			   :space-evenly false
+			   :spacing 12
+			   (box)
+			   "󰟀  ${current-window}")
+
+		      (box :halign "center"
+			   "${workspace-status}")
+
+		      (box :halign "end"
+			   :space-evenly false
+			   :spacing 12
+			   (box "  ${clock_hour}:${clock_minute} | ${battery-systray}") (box))))
+
+(defpoll workspace-status
     :interval "80ms" 
     "./scripts/workspace.sh")
 
-(defwidget status_workspaces[]
-    (box 
-     :class "lambda_box"
-     (literal :content status_workspaces)))
+(defwidget workspace-status[]
+    (literal :content workspace-status))
 
 (defwidget status_clock[]
     (box

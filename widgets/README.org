@@ -1,0 +1,816 @@
+
+#+title: eww widgets
+#+author: midnight-the-rock
+
+EWW really is a good tool to create customized widgets, that is why I chose it over any other alternative; For now, I have a status bar and a control center, both require a rework to further improve the code, add better utilities and more.
+
+The widgets will require some information that is better to have available at all times, so we will set it as global variables.
+
+#+begin_src lisp :tangle ./eww.yuck
+
+  (defpoll uptime :interval "1m"
+	   "echo $(uptime -p | tr -d , | awk '{ print $1\" \"$2\" \"$3 }')")
+
+  (defpoll battery :interval "5m"
+	   "echo $(cat /sys/class/power_supply/BAT1/capacity)")
+
+  (defpoll battery-systray :interval "2m"
+	   "./scripts/battery-systray")
+
+  (defpoll volume :interval "100ms"
+	   "pamixer --get-volume")
+
+  (defpoll brightness :interval "100ms"
+	   "brightnessctl | grep Current | awk '{ print $4 }' | tr -d '(%)'")
+
+  (defpoll player_title :interval "2s"
+	   "./scripts/media-control.sh title")
+
+  (defpoll player_artist :interval "2s"
+	   "./scripts/media-control.sh artist")
+
+  (defpoll player_cover :interval "10s"
+	   "./scripts/media-control.sh cover")
+
+  (defpoll clock_hour :interval "1m"
+	   "echo $(date +%R | cut -d ':' -f 1)")
+
+  (defpoll clock_minute :interval "1m"
+	   "echo $(date +%R | cut -d ':' -f 2)")
+
+  (defpoll current_month :interval "1h"
+	   "date | cut -d ' ' -f1-3 | tr ' ' '/'")
+
+  (defpoll memory :interval "1h"
+	   "./scripts/memory-info.sh")
+
+#+end_src
+
+And of course, we will also require global data regarding coloring plus some css defaults.
+
+#+begin_src  scss :tangle ./eww.scss
+
+  $color_0: #262026;
+  $color_1: #1e191e;
+  $color_2: #dbd7d2;
+
+  $color_3: #3b363b;
+  $color_4: #b1a7a8;
+  $color_5: #986992;
+
+  $color_6: #563d53;
+  $color_7: #82687f;
+  $color_8: #6a3864;
+
+  ,* {
+      all: unset;
+      font-family: "CommitMono Nerd Font";
+  } 
+
+  @import "./dashboard/dashboard.scss";
+  @import "./status_bar/status_bar.scss";
+
+#+end_src
+
+Now that the base is up and ready, we can discuss each individual part composing our widgets.  
+
+** Widget: status bar
+
+#+begin_src lisp :tangle ./eww.yuck
+
+  (include "./status_bar/status_bar.yuck")
+
+#+end_src
+
+#+begin_src lisp :tangle ./eww.yuck
+
+  (defwindow status_bar 
+	     :monitor 0
+	     :stacking "bg" 
+	     :wm-ignore true
+	     :reserve (struts :side "bottom"
+			      :distance "42px")
+	     :geometry (geometry :x 0
+				 :y 0
+				 :width "100%"
+				 :anchor "bottom center")
+	     (status-bar))
+
+#+end_src
+
+**** Main widget
+
+#+begin_src lisp :tangle ./status_bar/status_bar.yuck
+
+  (defpoll current-window :interval "100ms" "xdotool getwindowfocus getwindowclassname")
+
+  (defwidget status-bar []
+	     (centerbox :class "bar-inner"
+			:orientation "h"
+			:space-evenly false
+			(box :halign "start"
+			     :space-evenly false
+			     :spacing 12
+			     (box)
+			     "󰟀  ${current-window}")
+
+			(box :halign "center"
+			     "${workspace-status}")
+
+			(box :halign "end"
+			     :space-evenly false
+			     :spacing 12
+			     (box "  ${clock_hour}:${clock_minute} | ${battery-systray}") (box))))
+
+#+end_src
+
+#+begin_src scss :tangle ./status_bar/status_bar.scss
+
+  .bar-inner {
+      padding: 8px;
+      font-size: 20px;
+      font-weight: 500;
+      color: #b1a7a8;
+      border-top: 2px solid;
+      background: $color_1;
+  }
+
+  .bar-outer {
+      margin: 20px;
+      background: #b1a7a8;
+  }
+
+  .bar-workspace {
+      color: $color_4;
+      margin-left: 0;
+  }
+
+#+end_src
+
+**** Sub-widget: workspaces
+
+#+begin_src lisp :tangle ./status_bar/status_bar.yuck
+
+  (defpoll workspace-status
+      :interval "80ms" 
+      "./scripts/workspace.sh")
+
+  (defwidget workspace-status[]
+      (literal :content workspace-status))
+
+#+end_src
+
+#+begin_src scss :tangle ./status_bar/status_bar.scss
+
+  .bar_workspace {
+      padding: 0px 8px;
+      font-size: 20px;
+      background: $color_1;
+  }
+
+  .bar_workspaces {
+      margin: 18px 10px 0px 0px;
+  }
+
+  .workspace-box {
+      margin: 18px 10px 0px 0px;
+  }
+
+  .workspace-button {
+      padding: 0px 8px;
+      font-size: 20px;
+      background: $color_1;
+  }
+
+  .occupied {
+      border-radius: 2px;
+      background: $color_7;
+  }
+
+  .empty {
+      border-radius: 2px;
+      background: $color_6;
+  }
+
+  .active {
+      margin: 8px 0px 2px 0px;
+      padding: 6px 20px;
+      background: $color_2;
+  }
+
+  .inactive {
+      margin: 8px 0px 2px 0px;
+      padding: 1px 14px;
+  }
+
+#+end_src
+
+**** Sub-widget: clock
+
+#+begin_src lisp :tangle ./status_bar/status_bar.yuck
+
+  (defwidget status_clock[]
+      (box
+       :valign "end"
+       :orientation "v"    
+       :space-evenly false :spacing 8
+       :class "lambda_time"
+       (box clock_hour) 
+       (box clock_minute)))
+
+#+end_src
+
+#+begin_src scss :tangle ./status_bar/status_bar.scss
+
+  .lambda_time {
+      background: $color_0;
+
+      margin: 4px;
+      padding: 6px;
+      font-size: 18px;
+  }
+
+#+end_src
+
+**** Scripts
+
+#+begin_src shell :tangle ./scripts/workspace.sh
+
+  #!/bin/env bash
+
+  get_workspaces() {
+      wmctrl -d | awk '{ print $1 " " $2 }' 
+  }
+
+  gen_workspaces() {
+      buffered=""
+
+      get_workspaces | while read -r id active; do
+	  if [[ "$active" == "*" ]]; then
+	      active_class="* "
+	  else
+	      active_class="- "
+	  fi
+
+	  # if wmctrl -l | grep --regexp '.*\s\+'"$id"'\s\+.*' >/dev/null; then
+	  #     occupation_class="occupied"
+	  # else
+	  #     occupation_class="empty"
+	  # fi
+
+	  buffered+="$active_class"
+
+	  echo -n "$buffered"
+	  buffered=""
+      done
+  }
+
+  echo "$(gen_workspaces)"
+
+#+end_src
+
+
+** Widget: dashboard
+
+#+begin_src lisp :tangle ./eww.yuck
+
+  (include "./dashboard/dashboard.yuck")
+
+  (defwindow dashboard
+      :monitor 0 
+      :stacking "bg" 
+      :geometry (geometry 
+		 :x 0 
+		 :y 174
+		 :anchor "center") 
+      (dashboard))
+
+#+end_src
+
+**** Main widget
+
+The dashboard is divided into three distinctive sections: header, upper half, and lower half, this widget will have them all grouped to be displayed.
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget dashboard []
+    (box 
+     :class "dashboard_in"
+     :spacing 8
+     :space-evenly false 
+     :orientation "v"
+
+     (dashboard_header) (dashboard_upper_half) (dashboard_lower_half)))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+  .dashboard_out {
+
+  }
+
+  .dashboard_in {
+      padding: 5px;
+      border: 2px solid #b1a7a8;
+      padding: 20px;
+      background: $color_1;
+  }
+
+#+end_src
+
+
+**** Header
+
+This area holds components related to user-icon, time, and up-time (any other important information that is small enough to be here may be added in the future)
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget dashboard_header []
+    (centerbox
+     :class "dashboard_header"
+     :orientation "h"
+     (dashboard_header_left) (box) (dashboard_header_right)))
+
+  (defwidget dashboard_header_right []
+    (box 
+     :halign "end" 
+     :space-evenly false 
+     (dashboard_clock)))
+
+  (defwidget dashboard_header_left []
+    (box 
+     :space-evenly false 
+     (user_icon) (user_uptime)))
+
+  (defwidget user_icon[]
+      (box :class "user_icon"
+	   :style "background-image: url('./assets/user.png')"))
+
+  (defwidget user_uptime[]
+      (box :class "user_uptime"
+	   "│ ${uptime}"))
+
+  (defwidget dashboard_clock[]
+      (box 
+       :class "user_uptime"
+       "${clock_hour}:${clock_minute}"))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+  .dashboard_header {
+      color: $color_2;
+      font-size: 22px;
+      font-weight: 500;
+      padding: 0px 10px 10px 10px;
+      background: $color_1;
+  }
+
+  .user_icon {
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+
+      padding: 20px;
+      border-radius: 50%;
+      min-width: 8px;
+      min-height: 8px;
+  }
+
+  .user_uptime {
+      margin: 4px;
+      padding: 0px 15px;
+      font-size: 18px;
+      color: $color_2;
+      background: $color_1;
+  }
+
+#+end_src
+
+
+**** Upper half
+
+The upper half currently contains two big blocks, one being a calendar and the other being my agenda from emacs. Then finally mapped into a single object for the main widget.
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget dashboard_upper_half []
+    (box :orientation "h"
+	 :space-evenly false :spacing 8
+	 (dashboard_date) (dashboard_agenda)))
+
+#+end_src
+
+***** TODO Calendar
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+    (defwidget dashboard_date []
+      (box :orientation "v"
+	   :space-evenly false :spacing 0
+	   :class "calendar_outer"
+	   (box :halign "start" 
+		:style  "padding: 4px 0px 8px 8px;"
+		"󰃭  ${current_month}")
+	   (calendar :class "calendar_inner"
+		     :show-heading false)))
+
+    (defpoll agenda :interval "2m" "./scripts/agenda.sh")
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+    .calendar_outer {
+	background: $color_0;
+	border-radius:10px;
+	padding: 10px;
+	font-size: 18px;
+    }
+
+    .calendar_inner {
+	background: $color_1;
+	border-radius: 10px;
+	padding: 8px;
+	font-size: 18px;
+    }
+
+    calendar {
+	&:selected {
+	    color: $color_2;
+	    background: $color_1;
+	}
+    }
+
+#+end_src
+
+
+***** Agenda
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget dashboard_agenda []
+    (box  :class "agenda"
+	  :orientation "v"
+	  :valign "start"
+	  :space-evenly false :spacing 8
+
+	  (box :halign "start"
+	       :style "padding: 4px 0px 0px 8px;"
+	       "󱇘  Agenda")
+
+	  (box (literal :content agenda))))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+  .agenda {
+      background: $color_0;
+      padding: 10px;
+      min-width: 500px;
+      font-size: 18px;
+      border-radius: 10px;
+  }
+
+  .agenda_scroll {
+      border-radius: 10px;
+      background: $color_1;
+      padding: 20px 20px;
+      min-height: 250px;
+  }
+
+  .agenda_todo {
+      color: #d1c9ab;
+      font-weight: bold;
+  }
+
+  .agenda_header {
+      color: #9aa8b3;
+      font-size: 22px;
+  }
+
+#+end_src
+
+#+begin_src shell :tangle ./scripts/agenda.sh
+
+  #!/bin/env bash
+
+  # generate a scrollable element with all agenda items
+
+  agenda_location=$(echo $HOME/Desktop/agenda/*.org)
+
+  get-agenda() {
+      cat $agenda_location | while read -r line; do 
+	  [[ $(echo "$line" | grep --regex "^\*") != '' ]] && {
+	      no_indent_line=$(echo "$line" | tr -d '*') 
+	      item_type=$(echo -e "$no_indent_line" | awk '{ print $1 }')
+	      item_data=$(echo -e "$no_indent_line" | cut -d ' ' -f 3-20)
+
+	      [[ $(echo "$line" | grep --regex "^\*\* ") != '' ]] && style_class="agenda_todo" || style_class="agenda_header"
+
+	      [[ $style_class == "agenda_header" ]] && 
+		  echo "(label :class \"$style_class\" :limit-width 44 :xalign 0.0 :text \"$no_indent_line\")" ||
+		      echo "(box :space-evenly false :spacing 10 (label :class \"$style_class\" :limit-width 10 :xalign 0.0 :text \"$item_type\") (label :limit-width 44 :xalign 0.0 :text \"$item_data\"))"  
+	  }
+      done
+  }
+
+  echo -e "(scroll :class \"agenda_scroll\" :vscroll true :hscroll false (box :orientation \"v\" $(get-agenda)))"
+
+#+end_src
+
+
+**** Lower half
+
+Lower half of the dashboard includes a music player, metrics for audio and brightness, session controls and information about battery and storage.
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget dashboard_lower_half []
+    (box :orientation "h" 
+	 :space-evenly false :spacing 8
+	 (music_player) (audio_visual_control) (session_control)))
+
+#+end_src
+
+***** Music Player 
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+      (defwidget music_player []
+	(box :class "music_player"
+	     :halign "start"
+	     :orientation "h"
+	     :space-evenly false :spacing 20
+	     (player_cover) (player_info)))
+
+      (defwidget player_cover[]
+	  (box :class "player_cover"
+	       :style player_cover))
+
+      (defwidget player_info []
+	(box :orientation "v"
+	     :valign "start"
+	     :space-evenly false :spacing 0 
+	     (player_title) (player_artist) (player_buttons)))
+
+      (defwidget player_title []
+	(box :orientation "v"
+	     :style "margin: 10px 0px 0px 0px;"
+	     (label :xalign 0.0
+		    :limit-width 18 
+		    :text player_title)))
+
+      (defwidget player_artist []
+	(box :orientation "v"
+	     :style "font-size: 14px;"
+	     (label :xalign 0.0
+		    :limit-width 20 
+		    :text player_artist)))
+
+      (defwidget player_buttons []
+	(box :class "player_buttons"
+	     :orientation "h"
+	     :space-evenly false :spacing 20
+	     (button :onclick "./scripts/mediaControl.sh next"   "󰼥")
+	     (button :onclick "./scripts/mediaControl.sh toggle" "󰐎")
+	     (button :onclick "./scripts/mediaControl.sh next"   "󰼦")))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+  .music_player {
+      background: $color_0;
+      padding: 12px 12px;
+      min-width: 465px;
+      border-radius: 10px;
+      font-size: 22px;
+  }
+
+  .player_cover {
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+
+      min-width: 130px;
+      min-height: 120px;
+
+      border-radius: 10%;
+  }
+
+  .player_buttons {
+      font-size: 20px;
+      margin: 6px 0px 0px 2px;
+  }
+
+#+end_src
+
+#+begin_src shell :tangle ./scripts/media-control.sh
+
+  #!/bin/env bash
+
+  get-song-title() {
+      local status="$(playerctl status)"
+
+      [[ $status == 'Playing' || $status == 'Paused' ]] &&
+	  echo -e "$(playerctl metadata title)" || echo -e "nothing..." 
+  }
+
+  get-song-cover() {
+      local status="$(playerctl status)"
+
+      [[ $status == 'Playing' || $status == 'Paused' ]] && {
+	  curl $(playerctl metadata mpris:artUrl) --output ~/.config/eww/assets/cover.png &>/dev/null;
+	  echo -e "background-image: url('./assets/cover.png');"
+      } || {
+	  echo -e "background-image: url('./assets/no-music.png');"
+      }
+  }
+
+  get-song-artist() {
+      local status="$(playerctl status)"
+
+      [[ $status == 'Playing' || $status == 'Paused' ]] &&
+	  echo -e "$(playerctl metadata artist)" || echo -e " " 
+  }
+
+  case $1 in
+      "title") get-song-title;;
+      "cover") get-song-cover;;
+      "artist") get-song-artist;;
+      ,*) echo "invalid command!";;
+  esac
+
+#+end_src
+
+
+***** Audio visual control
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget audio_visual_control []
+    (box :class "audio_visual_control"
+	 :orientation "v"
+	 :valign "center"
+	 :space-evenly false :spacing 14
+	  (box :space-evenly false
+	       (scale :flipped false
+		      :orientation "h"
+		      :class "audio_visual_bar"
+		      :min 0 
+		      :max 101
+		      :value brightness)
+	       (box :class "audio_visual_icon" ""))
+	  (box :space-evenly false
+	       (scale :flipped false
+		      :orientation "h"
+		      :class "audio_visual_bar"
+		      :min 0 :max 101
+		      :value volume)
+	       (box :class "audio_visual_icon" "󱄠"))))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+   
+  .audio_visual_control {
+      padding: 12px;
+      border-radius: 10px;
+      background: #262026;
+  }
+
+  scale.audio_visual_bar trough {
+      background: $color_1;
+      min-width: 256px;
+      min-height: 60px;
+      border-radius: 10px;;   
+  }
+
+  scale.audio_visual_bar trough highlight {
+      background: #c9c0bb; 
+      border-radius: 10px 2px 2px 10px;   
+  }
+
+  .audio_visual_icon {
+      color: #1d5b5f;
+      font-size: 20px;
+      margin: 0px 0px -1px -470px;
+  }
+
+#+end_src
+
+
+***** Session control
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget session_control []
+    (box :orientation "v"
+	 :space-evenly false :spacing 8
+	 (box :orientation "h"
+	      :space-evenly false :spacing 8
+	      (button :class "control_button" "󰤆")
+	      (button :class "control_button" "󰤄"))
+	 (box :orientation "h"
+	      :space-evenly false :spacing 8
+	      (button :class "control_button" "󰑫")
+	      (button :class "control_button" "󰂯"))))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+  .control_button {
+      background: $color_0;
+      border-radius:10px;;
+      padding: 22px 30px 22px 28px;
+      font-size: 24px;
+  }
+
+#+end_src
+
+
+***** Device info
+
+#+begin_src lisp :tangle ./dashboard/dashboard.yuck
+
+  (defwidget device_info []
+    (box :class "device_info"
+	 :valign "start"
+	 :orientation "v"
+	 :space-evenly false :spacing 12
+	 (circular-progress :value battery
+			    :start-at 75 
+			    :thickness 6
+			    :class "device_progress"
+			    (box :class "device_progress_icon_a" " "))
+	 (circular-progress :value {(EWW_DISK["/"].free / EWW_DISK["/"].total) * 100}
+			    :start-at 75 
+			    :thickness 6
+			    :class "device_progress"
+			    (box :class "device_progress_icon_b" "󰌨 "))))
+
+#+end_src
+
+#+begin_src scss :tangle ./dashboard/dashboard.scss
+
+ .device_info {
+      padding: 13px 10px 12px 10px;
+      background: #262026;
+      border-radius: 10px;
+  }
+
+  .device_progress {
+      color: #b5bab5;
+      background: #1e191e;
+  }
+
+  .device_progress_icon_a {
+      padding: 16px;
+      margin-right: 3px;
+      margin-left: 3px;
+      font-size: 22px;
+  }
+
+  .device_progress_icon_b {
+      padding: 16px;
+      margin-left: 6px;
+      font-size: 22px;
+  }
+
+#+end_src
+
+
+***** Resource usage
+
+
+**** Scripts
+
+#+begin_src shell :tangle ./scripts/dashboard.sh
+
+  #!/bin/env bash
+
+  # This simply serves as a toggle for the dashboard window
+
+  if [[ $(eww active-windows | grep "dashboard") ]]; then
+      eww close dashboard
+  else
+      eww open dashboard
+  fi
+
+#+end_src
+
+
+*** Installation
+
+#+begin_src shell :tangle ../install/widgets_install.sh
+
+  paru -S eww-git
+
+  ln -sf $(pwd)/widgets ~/.config/eww
+
+#+end_src

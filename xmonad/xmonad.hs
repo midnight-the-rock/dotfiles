@@ -3,7 +3,7 @@
 
 import XMonad
 
-import XMonad.Util.EZConfig(additionalKeysP)
+import XMonad.Util.EZConfig(additionalKeysP, removeKeysP)
 import XMonad.Util.SpawnOnce 
 
 import XMonad.Layout.Gaps
@@ -16,9 +16,11 @@ import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Hooks.EwmhDesktops
 
+myLeaderKey = "M-m " :: String
+
 screenControl :: [(String, X())]
-screenControl = [ ("M-s",   spawn "scrot -u")
-		, ("M-S-s", spawn "scrot -s")
+screenControl = [ ("M-s",   spawn "shotgun -s")
+		, (myLeaderKey ++ "s", spawn "flameshot gui")
 		, ("M-r",   spawn "redshift -P -O 3500")
 		, ("M-S-r", spawn "redshift -x")
 		, ("M-<XF86AudioRaiseVolume>",  spawn "brightnessctl set 5%+")
@@ -29,15 +31,16 @@ audioControl :: [(String, X())]
 audioControl = [ ("<XF86AudioNext>", spawn "playerctl next")
 	       , ("<XF86AudioPrev>", spawn "playerctl previous")
 	       , ("<XF86AudioPlay>", spawn "playerctl play-pause")
-	       , ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 5+")
-	       , ("<XF86AudioLowerVolume>", spawn "amixer sset Master 5-")
+	       , ("<XF86AudioRaiseVolume>", spawn "pamixer -i 5 #to increase 5%")
+	       , ("<XF86AudioLowerVolume>", spawn "pamixer -d 5 #to decrease 5%")
 	       ]
 
 launchControl :: [(String, X())]
-launchControl = [ ("M-<Return>", spawn "kitty")
-		, ("M-S-<Return>", spawn "env XMODIFIERS= emacs")
-		, ("M-p", spawn "rofi -show drun")
-		, ("M-d", spawn "bash /home/midnight/.config/eww/scripts/dashboard.sh")
+launchControl = [ (myLeaderKey ++ "k", kill)
+		, (myLeaderKey ++ "t", spawn "kitty")
+		, (myLeaderKey ++ "e", spawn "env XMODIFIERS= emacs")
+		, (myLeaderKey ++ "p", spawn "rofi -show drun")
+		, (myLeaderKey ++ "d", spawn "bash /home/midnight/.config/eww/scripts/dashboard.sh")
 		]
 
 myKeybinds :: [(String, X())]
@@ -66,7 +69,7 @@ mySetup = def
   , manageHook         = manageHook def <+> manageDocks
   , layoutHook         = myLayout
   , startupHook        = myStartup
-  } `additionalKeysP` myKeybinds
+  } `additionalKeysP` myKeybinds `removeKeysP` ["M-w", "M-e"]
 
 main :: IO()
 main = xmonad $ ewmh $ ewmhFullscreen $ mySetup

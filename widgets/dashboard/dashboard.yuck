@@ -1,13 +1,11 @@
 (defwidget dashboard []
-    (box 
-     :class "dashboard_out" 
-     (box 
-      :class "dashboard_in"
-      :spacing 8
-      :space-evenly false 
-      :orientation "v"
+  (box 
+   :class "dashboard_in"
+   :spacing 8
+   :space-evenly false 
+   :orientation "v"
 
-      (dashboard_header) (dashboard_upper_half) (dashboard_lower_half))))
+   (dashboard_header) (dashboard_upper_half) (dashboard_lower_half)))
 
 (defwidget dashboard_header []
   (centerbox
@@ -71,7 +69,7 @@
 (defwidget dashboard_lower_half []
   (box :orientation "h" 
        :space-evenly false :spacing 8
-       (music_player) (audio_visual_control) (session_control) (device_info)))
+       (music_player) (audio_visual_control) (session_control)))
 
 (defwidget music_player []
   (box :class "music_player"

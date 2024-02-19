@@ -8,9 +8,14 @@ get-song-title() {
 }
 
 get-song-cover() {
-    curl $(playerctl metadata mpris:artUrl) --output ~/.config/eww/assets/cover.png &>/dev/null
+    local status="$(playerctl status)"
 
-    echo -e "background-image: url('./assets/cover.png');"
+    [[ $status == 'Playing' || $status == 'Paused' ]] && {
+	curl $(playerctl metadata mpris:artUrl) --output ~/.config/eww/assets/cover.png &>/dev/null;
+	echo -e "background-image: url('./assets/cover.png');"
+    } || {
+	echo -e "background-image: url('./assets/no-music.png');"
+    }
 }
 
 get-song-artist() {

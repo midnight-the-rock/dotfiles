@@ -2,4 +2,8 @@
 
 # This simply serves as a toggle for the dashboard window
 
-[[ $(eww windows | grep "dashboard") == "*dashboard" ]] && eww close dashboard || eww open dashboard
+if [[ $(eww active-windows | grep "dashboard") ]]; then
+    eww close dashboard
+else
+    eww open dashboard
+fi

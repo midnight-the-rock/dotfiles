@@ -2,8 +2,6 @@
 #+title: Xmonad configs
 #+author: midnight-the-rock
 
-
-
 ** Utility Imports
 
 #+begin_src haskell :tangle ./xmonad.hs
@@ -13,7 +11,7 @@
 
   import XMonad
 
-  import XMonad.Util.EZConfig(additionalKeysP)
+  import XMonad.Util.EZConfig(additionalKeysP, removeKeysP)
   import XMonad.Util.SpawnOnce 
 
   import XMonad.Layout.Gaps
@@ -33,13 +31,21 @@
 
 User defined bindings are divided in three sections, this is done to set boundaries between different functionality.  
 
+We will require a leader key for our bindings, since they will eventually get to a preocupying amount and will surely interfere with other program's bindings otherwise.
+
+#+begin_src haskell :tangle ./xmonad.hs
+
+  myLeaderKey = "M-m " :: String
+
+#+end_src
+
 The first bindings are related to screen control, whatever that has to do anything with your screen goes here, brightness, screenshots, and more.
 
 #+begin_src haskell :tangle ./xmonad.hs
 
   screenControl :: [(String, X())]
-  screenControl = [ ("M-s",   spawn "scrot -u")
-		  , ("M-S-s", spawn "scrot -s")
+  screenControl = [ ("M-s",   spawn "shotgun -s")
+		  , (myLeaderKey ++ "s", spawn "flameshot gui")
 		  , ("M-r",   spawn "redshift -P -O 3500")
 		  , ("M-S-r", spawn "redshift -x")
 		  , ("M-<XF86AudioRaiseVolume>",  spawn "brightnessctl set 5%+")
@@ -56,8 +62,8 @@ And all related to audio will be located under audioControl, for now it is just 
   audioControl = [ ("<XF86AudioNext>", spawn "playerctl next")
 		 , ("<XF86AudioPrev>", spawn "playerctl previous")
 		 , ("<XF86AudioPlay>", spawn "playerctl play-pause")
-		 , ("<XF86AudioRaiseVolume>", spawn "amixer sset Master 5+")
-		 , ("<XF86AudioLowerVolume>", spawn "amixer sset Master 5-")
+		 , ("<XF86AudioRaiseVolume>", spawn "pamixer -i 5 #to increase 5%")
+		 , ("<XF86AudioLowerVolume>", spawn "pamixer -d 5 #to decrease 5%")
 		 ]
 
 #+end_src
@@ -67,10 +73,11 @@ As for the launchControl, there is no much to say, add, remove, thinker around i
 #+begin_src haskell :tangle ./xmonad.hs
 
   launchControl :: [(String, X())]
-  launchControl = [ ("M-<Return>", spawn "kitty")
-		  , ("M-S-<Return>", spawn "env XMODIFIERS= emacs")
-		  , ("M-p", spawn "rofi -show drun")
-		  , ("M-d", spawn "bash /home/midnight/.config/eww/scripts/dashboard.sh")
+  launchControl = [ (myLeaderKey ++ "k", kill)
+		  , (myLeaderKey ++ "t", spawn "kitty")
+		  , (myLeaderKey ++ "e", spawn "env XMODIFIERS= emacs")
+		  , (myLeaderKey ++ "p", spawn "rofi -show drun")
+		  , (myLeaderKey ++ "d", spawn "bash /home/midnight/.config/eww/scripts/dashboard.sh")
 		  ]
 
 #+end_src
@@ -134,7 +141,7 @@ After removing something, always remember to run src_shell{xmonad --recompile}; 
     , manageHook         = manageHook def <+> manageDocks
     , layoutHook         = myLayout
     , startupHook        = myStartup
-    } `additionalKeysP` myKeybinds
+    } `additionalKeysP` myKeybinds `removeKeysP` ["M-w", "M-e"]
 
   main :: IO()
   main = xmonad $ ewmh $ ewmhFullscreen $ mySetup
@@ -148,7 +155,7 @@ For now this only require xmonad and xmonad-contrib to work, you can use this sc
 
 #+begin_src shell :tangle ../install/xmonad.sh
 
-  ln -sf $(pwd)/ ~/.config/xmonad
+  ln -sf $(pwd)/../xmonad ~/.config/xmonad
 
   sudo pacman -S xmonad xmonad-contrib
   xmonad --recompile 

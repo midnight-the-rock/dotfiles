@@ -1,16 +1,26 @@
-.status_bar_in {
-    background: $_c1;
+.bar-inner {
+    padding: 8px;
+    font-size: 20px;
+    font-weight: 500;
+    color: #b1a7a8;
+    border-top: 2px solid;
+    background: $color_1;
 }
 
-.status_bar_out {
-    padding: 5px;
-    background: $_c0;
+.bar-outer {
+    margin: 20px;
+    background: #b1a7a8;
+}
+
+.bar-workspace {
+    color: $color_4;
+    margin-left: 0;
 }
 
 .bar_workspace {
     padding: 0px 8px;
     font-size: 20px;
-    background: $_c1;
+    background: $color_1;
 }
 
 .bar_workspaces {
@@ -24,11 +34,32 @@
 .workspace-button {
     padding: 0px 8px;
     font-size: 20px;
-    background: $_c1;
+    background: $color_1;
+}
+
+.occupied {
+    border-radius: 2px;
+    background: $color_7;
+}
+
+.empty {
+    border-radius: 2px;
+    background: $color_6;
+}
+
+.active {
+    margin: 8px 0px 2px 0px;
+    padding: 6px 20px;
+    background: $color_2;
+}
+
+.inactive {
+    margin: 8px 0px 2px 0px;
+    padding: 1px 14px;
 }
 
 .lambda_time {
-    background: $_c0;
+    background: $color_0;
 
     margin: 4px;
     padding: 6px;

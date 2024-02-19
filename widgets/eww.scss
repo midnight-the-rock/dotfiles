@@ -1,19 +1,19 @@
-$_c0: #262026;
-$_c1: #1e191e;
-$_c2: #dbd7d2;
+$color_0: #262026;
+$color_1: #1e191e;
+$color_2: #dbd7d2;
 
-$_c3: #3b363b;
-$_c4: #3c0835;
-$_c5: #986992;
+$color_3: #3b363b;
+$color_4: #b1a7a8;
+$color_5: #986992;
 
-$_c6: #563d53;
-$_c7: #82687f;
-$_c8: #6a3864;
-
-@import "./dashboard/dashboard.scss";
-@import "./status_bar/status_bar.scss";
+$color_6: #563d53;
+$color_7: #82687f;
+$color_8: #6a3864;
 
 * {
     all: unset;
-    font-family: "Iosevka Nerd Font";
-}
+    font-family: "CommitMono Nerd Font";
+} 
+
+@import "./dashboard/dashboard.scss";
+@import "./status_bar/status_bar.scss";

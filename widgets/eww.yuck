@@ -4,8 +4,11 @@
 (defpoll battery :interval "5m"
 	 "echo $(cat /sys/class/power_supply/BAT1/capacity)")
 
+(defpoll battery-systray :interval "2m"
+	 "./scripts/battery-systray")
+
 (defpoll volume :interval "100ms"
-	 "amixer get Master | grep Mono: | awk '{ print $4 }' | tr -d '[%]'")
+	 "pamixer --get-volume")
 
 (defpoll brightness :interval "100ms"
 	 "brightnessctl | grep Current | awk '{ print $4 }' | tr -d '(%)'")
@@ -34,16 +37,16 @@
 (include "./status_bar/status_bar.yuck")
 
 (defwindow status_bar 
-    :monitor 0 
-    :stacking "bg" 
-    :wm-ignore true
-    :reserve (struts :distance "60px" :side "left")
-    :geometry (geometry
-	       :x 12 
-	       :y 0
-	       :height "97.6%"
-	       :anchor "center left")
-    (status_bar))
+	   :monitor 0
+	   :stacking "bg" 
+	   :wm-ignore true
+	   :reserve (struts :side "bottom"
+			    :distance "42px")
+	   :geometry (geometry :x 0
+			       :y 0
+			       :width "100%"
+			       :anchor "bottom center")
+	   (status-bar))
 
 (include "./dashboard/dashboard.yuck")
 
@@ -52,6 +55,6 @@
     :stacking "bg" 
     :geometry (geometry 
 	       :x 0 
-	       :y 0 
+	       :y 174
 	       :anchor "center") 
     (dashboard))
