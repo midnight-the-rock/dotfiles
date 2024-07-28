@@ -4,19 +4,44 @@
 	   (centerbox :class "bar-inner"
 		      :orientation "h"
 		      :space-evenly false
+		      (box :spacing 0
+			   :space-evenly false
+			   :halign "start"
+			   :style "margin-left: 10px;"
+			   (box :style "margin: 0px 5px"
+				"${workspace-status}"))
+
 		      (box :halign "start"
 			   :space-evenly false
 			   :spacing 12
-			   (box)
-			   "󰟀  ${current-window}")
-
-		      (box :halign "center"
-			   "${workspace-status}")
+			   (box))
 
 		      (box :halign "end"
 			   :space-evenly false
-			   :spacing 12
-			   (box "  ${clock_hour}:${clock_minute} | ${battery-systray}") (box))))
+			   :spacing 8
+			   (status-bar-scale :icon ""
+					     :value volume)
+			   (status-bar-separator)
+			   (status-bar-scale :icon "󰌵"
+					     :value brightness)
+			   (status-bar-separator)
+			   (status-bar-scale :icon "󱐋"
+					     :value battery)
+			   (status-bar-separator)
+			   (box "")
+			   (box "${clock-hour}:${clock-minute} "))))
+
+(defwidget status-bar-separator []
+	   (box "|"))
+
+(defwidget status-bar-scale [icon value]
+	   (box :spacing 12
+		:space-evenly false
+		(box icon)
+		(scale :class "status-bar-scale"
+		       :min 0 
+		       :max 101
+		       :value value)))
 
 (defpoll workspace-status
     :interval "80ms" 
@@ -31,5 +56,5 @@
      :orientation "v"    
      :space-evenly false :spacing 8
      :class "lambda_time"
-     (box clock_hour) 
-     (box clock_minute)))
+     (box clock-hour) 
+     (box clock-minute)))

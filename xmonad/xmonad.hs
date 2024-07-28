@@ -16,13 +16,18 @@ import XMonad.Hooks.StatusBar
 import XMonad.Hooks.StatusBar.PP
 import XMonad.Hooks.EwmhDesktops
 
+import XMonad.Actions.PhysicalScreens
+
 myLeaderKey = "M-m " :: String
 
+withLeaderKey :: String -> String
+withLeaderKey key = myLeaderKey ++ key
+
 screenControl :: [(String, X())]
-screenControl = [ ("M-s",   spawn "shotgun -s")
-		, (myLeaderKey ++ "s", spawn "flameshot gui")
-		, ("M-r",   spawn "redshift -P -O 3500")
-		, ("M-S-r", spawn "redshift -x")
+screenControl = [ (withLeaderKey "s", spawn "shotgun -s")
+		, (withLeaderKey "c", spawn "flameshot gui")
+		, (withLeaderKey "r", spawn "redshift -P -O 3500")
+		, (withLeaderKey "b", spawn "redshift -x")
 		, ("M-<XF86AudioRaiseVolume>",  spawn "brightnessctl set 5%+")
 		, ("M-<XF86AudioLowerVolume>",  spawn "brightnessctl set 5%-")
 		]

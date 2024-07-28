@@ -33,9 +33,8 @@
 	 "│ ${uptime}"))
 
 (defwidget dashboard_clock[]
-    (box 
-     :class "user_uptime"
-     "${clock_hour}:${clock_minute}"))
+    (box :class "user_uptime"
+	 "${clock-hour}:${clock-minute}"))
 
 (defwidget dashboard_upper_half []
   (box :orientation "h"

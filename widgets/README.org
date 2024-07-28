@@ -32,10 +32,10 @@ The widgets will require some information that is better to have available at al
   (defpoll player_cover :interval "10s"
 	   "./scripts/media-control.sh cover")
 
-  (defpoll clock_hour :interval "1m"
+  (defpoll clock-hour :interval "1m"
 	   "echo $(date +%R | cut -d ':' -f 1)")
 
-  (defpoll clock_minute :interval "1m"
+  (defpoll clock-minute :interval "1m"
 	   "echo $(date +%R | cut -d ':' -f 2)")
 
   (defpoll current_month :interval "1h"
@@ -64,7 +64,7 @@ And of course, we will also require global data regarding coloring plus some css
 
   ,* {
       all: unset;
-      font-family: "CommitMono Nerd Font";
+      font-family: "BlexMono Nerd Font";
   } 
 
   @import "./dashboard/dashboard.scss";
@@ -88,12 +88,12 @@ Now that the base is up and ready, we can discuss each individual part composing
 	     :monitor 0
 	     :stacking "bg" 
 	     :wm-ignore true
-	     :reserve (struts :side "bottom"
+	     :reserve (struts :side "top"
 			      :distance "42px")
 	     :geometry (geometry :x 0
 				 :y 0
 				 :width "100%"
-				 :anchor "bottom center")
+				 :anchor "top center")
 	     (status-bar))
 
 #+end_src
@@ -108,19 +108,44 @@ Now that the base is up and ready, we can discuss each individual part composing
 	     (centerbox :class "bar-inner"
 			:orientation "h"
 			:space-evenly false
+			(box :spacing 0
+			     :space-evenly false
+			     :halign "start"
+			     :style "margin-left: 10px;"
+			     (box :style "margin: 0px 5px"
+				  "${workspace-status}"))
+
 			(box :halign "start"
 			     :space-evenly false
 			     :spacing 12
-			     (box)
-			     "󰟀  ${current-window}")
-
-			(box :halign "center"
-			     "${workspace-status}")
+			     (box))
 
 			(box :halign "end"
 			     :space-evenly false
-			     :spacing 12
-			     (box "  ${clock_hour}:${clock_minute} | ${battery-systray}") (box))))
+			     :spacing 8
+			     (status-bar-scale :icon ""
+					       :value volume)
+			     (status-bar-separator)
+			     (status-bar-scale :icon "󰌵"
+					       :value brightness)
+			     (status-bar-separator)
+			     (status-bar-scale :icon "󱐋"
+					       :value battery)
+			     (status-bar-separator)
+			     (box "")
+			     (box "${clock-hour}:${clock-minute} "))))
+
+  (defwidget status-bar-separator []
+	     (box "|"))
+
+  (defwidget status-bar-scale [icon value]
+	     (box :spacing 12
+		  :space-evenly false
+		  (box icon)
+		  (scale :class "status-bar-scale"
+			 :min 0 
+			 :max 101
+			 :value value)))
 
 #+end_src
 
@@ -128,10 +153,10 @@ Now that the base is up and ready, we can discuss each individual part composing
 
   .bar-inner {
       padding: 8px;
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 500;
       color: #b1a7a8;
-      border-top: 2px solid;
+      border-bottom: 1.6px solid;
       background: $color_1;
   }
 
@@ -143,6 +168,20 @@ Now that the base is up and ready, we can discuss each individual part composing
   .bar-workspace {
       color: $color_4;
       margin-left: 0;
+  }
+
+  scale.status-bar-scale trough {
+      margin-top: 2px;
+      margin-right: 4px;
+      background: $color_3;
+      min-width: 80px;
+      min-height: 6px;
+      border-radius: 4px;;   
+  }
+
+  scale.status-bar-scale trough highlight {
+      background: #c9c0bb; 
+      border-radius: 4px;   
   }
 
 #+end_src
@@ -215,8 +254,8 @@ Now that the base is up and ready, we can discuss each individual part composing
        :orientation "v"    
        :space-evenly false :spacing 8
        :class "lambda_time"
-       (box clock_hour) 
-       (box clock_minute)))
+       (box clock-hour) 
+       (box clock-minute)))
 
 #+end_src
 
@@ -247,9 +286,9 @@ Now that the base is up and ready, we can discuss each individual part composing
 
       get_workspaces | while read -r id active; do
 	  if [[ "$active" == "*" ]]; then
-	      active_class="* "
+	      active_class="  "
 	  else
-	      active_class="- "
+	      active_class="  "
 	  fi
 
 	  # if wmctrl -l | grep --regexp '.*\s\+'"$id"'\s\+.*' >/dev/null; then
@@ -277,11 +316,11 @@ Now that the base is up and ready, we can discuss each individual part composing
   (include "./dashboard/dashboard.yuck")
 
   (defwindow dashboard
-      :monitor 0 
+      :monitor 0
       :stacking "bg" 
       :geometry (geometry 
 		 :x 0 
-		 :y 174
+		 :y 30
 		 :anchor "center") 
       (dashboard))
 
@@ -352,9 +391,8 @@ This area holds components related to user-icon, time, and up-time (any other im
 	   "│ ${uptime}"))
 
   (defwidget dashboard_clock[]
-      (box 
-       :class "user_uptime"
-       "${clock_hour}:${clock_minute}"))
+      (box :class "user_uptime"
+	   "${clock-hour}:${clock-minute}"))
 
 #+end_src
 

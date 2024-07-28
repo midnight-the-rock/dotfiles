@@ -22,10 +22,10 @@
 (defpoll player_cover :interval "10s"
 	 "./scripts/media-control.sh cover")
 
-(defpoll clock_hour :interval "1m"
+(defpoll clock-hour :interval "1m"
 	 "echo $(date +%R | cut -d ':' -f 1)")
 
-(defpoll clock_minute :interval "1m"
+(defpoll clock-minute :interval "1m"
 	 "echo $(date +%R | cut -d ':' -f 2)")
 
 (defpoll current_month :interval "1h"
@@ -40,21 +40,21 @@
 	   :monitor 0
 	   :stacking "bg" 
 	   :wm-ignore true
-	   :reserve (struts :side "bottom"
+	   :reserve (struts :side "top"
 			    :distance "42px")
 	   :geometry (geometry :x 0
 			       :y 0
 			       :width "100%"
-			       :anchor "bottom center")
+			       :anchor "top center")
 	   (status-bar))
 
 (include "./dashboard/dashboard.yuck")
 
 (defwindow dashboard
-    :monitor 0 
+    :monitor 0
     :stacking "bg" 
     :geometry (geometry 
 	       :x 0 
-	       :y 174
+	       :y 30
 	       :anchor "center") 
     (dashboard))

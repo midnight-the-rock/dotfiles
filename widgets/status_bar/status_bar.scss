@@ -1,9 +1,9 @@
 .bar-inner {
     padding: 8px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 500;
     color: #b1a7a8;
-    border-top: 2px solid;
+    border-bottom: 1.6px solid;
     background: $color_1;
 }
 
@@ -15,6 +15,20 @@
 .bar-workspace {
     color: $color_4;
     margin-left: 0;
+}
+
+scale.status-bar-scale trough {
+    margin-top: 2px;
+    margin-right: 4px;
+    background: $color_3;
+    min-width: 80px;
+    min-height: 6px;
+    border-radius: 4px;;   
+}
+
+scale.status-bar-scale trough highlight {
+    background: #c9c0bb; 
+    border-radius: 4px;   
 }
 
 .bar_workspace {

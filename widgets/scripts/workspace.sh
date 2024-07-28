@@ -9,9 +9,9 @@ gen_workspaces() {
 
     get_workspaces | while read -r id active; do
 	if [[ "$active" == "*" ]]; then
-	    active_class="* "
+	    active_class="  "
 	else
-	    active_class="- "
+	    active_class="  "
 	fi
 
 	# if wmctrl -l | grep --regexp '.*\s\+'"$id"'\s\+.*' >/dev/null; then
